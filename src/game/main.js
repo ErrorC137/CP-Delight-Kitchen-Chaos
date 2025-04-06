@@ -4,7 +4,7 @@ import KitchenScene from './scenes/Kitchen.js';
 import HUDScene from './scenes/HUD.js';
 
 // Initialize Socket.IO (using CDN version)
-const socket = io('https://your-server-url.com'); // Replace with actual server URL
+const socket = io('https://errorc137.github.io/CP-Delight-Kitchen-Chaos/'); // Replace with actual server URL
 
 const config = {
   type: Phaser.AUTO,
