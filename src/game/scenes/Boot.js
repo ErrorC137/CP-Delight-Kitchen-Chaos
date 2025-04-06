@@ -1,21 +1,37 @@
 export default class Boot extends Phaser.Scene {
   constructor() {
     super({ key: 'Boot' });
+    this.hasAudioContext = false;
   }
 
   preload() {
     // Set base URL for assets
     this.load.setBaseURL('assets/');
     
-    // Show loading progress
+    // Show loading progress UI
+    this.createLoadingScreen();
+
+    // Configure file load error handling
+    this.load.on('loaderror', (file) => {
+      console.error('Failed to load:', file.key);
+      this.handleLoadError(file);
+    });
+
+    // Load game assets
+    this.loadAssets();
+  }
+
+  createLoadingScreen() {
     const { width, height } = this.sys.game.config;
-    const loadingText = this.add.text(width/2, height/2 - 40, 'Loading Kitchen...', { 
+    
+    // Loading text
+    this.add.text(width/2, height/2 - 40, 'Loading Kitchen...', { 
       font: '24px Arial', 
       fill: '#ffffff' 
     }).setOrigin(0.5);
 
-    // Progress bar container
-    const progressBox = this.add.graphics()
+    // Progress bar background
+    this.add.graphics()
       .fillStyle(0x222222, 0.8)
       .fillRect(width/2 - 160, height/2, 320, 50);
 
@@ -26,48 +42,55 @@ export default class Boot extends Phaser.Scene {
         .fillStyle(0xffffff, 1)
         .fillRect(width/2 - 150, height/2 + 10, 300 * value, 30);
     });
-
-    // Load assets
-    this.loadAssets();
   }
 
   loadAssets() {
     try {
-      // Chef Characters (4 directions, 5 frames each)
+      // Chef character with frame validation
       this.load.spritesheet('chef_red', 'sprites/chefs/chef_red.png', {
         frameWidth: 64,
         frameHeight: 64,
-        endFrame: 19 // 4 directions × 5 frames each = 20 frames (0-19)
+        endFrame: 19
       });
 
-      // Kitchen Elements
-      this.load.image('counter', 'sprites/kitchen/counter.png');
-      this.load.image('fryer', 'sprites/kitchen/appliance_fryer.png');
-      this.load.image('ingredient_chicken', 'sprites/kitchen/ingredient_chicken.png');
+      // Kitchen assets with fallbacks
+      this.loadAssetsWithFallback([
+        { key: 'counter', path: 'sprites/kitchen/counter.png' },
+        { key: 'fryer', path: 'sprites/kitchen/appliance_fryer.png' },
+        { key: 'ingredient_chicken', path: 'sprites/kitchen/ingredient_chicken.png' }
+      ]);
 
-      // UI Elements
+      // UI elements
       this.load.image('timer_bg', 'sprites/ui/timer_background.png');
       this.load.image('order_ticket', 'sprites/ui/order_ticket.png');
 
-      // Audio
-      this.load.audio('sizzle', 'audio/sfx/sizzle.mp3');
-      this.load.audio('bell', 'audio/sfx/bell.mp3');
+      // Audio with format fallback
+      this.load.audio('sizzle', ['audio/sfx/sizzle.mp3', 'audio/sfx/sizzle.ogg']);
+      this.load.audio('bell', ['audio/sfx/bell.mp3', 'audio/sfx/bell.ogg']);
 
-      // Fallback texture
+      // Add fallback texture
       this.textures.addBase64('missing', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=');
 
     } catch (error) {
-      console.error('Asset loading error:', error);
-      this.scene.start('Error');
+      console.error('Critical asset error:', error);
+      this.scene.start('Error', { message: 'Failed to load game assets' });
     }
   }
 
+  loadAssetsWithFallback(assets) {
+    assets.forEach(({ key, path }) => {
+      if (!this.textures.exists(key)) {
+        this.load.image(key, path);
+      }
+    });
+  }
+
   create() {
-    // Create chef animations
+    // Create animations with validation
     this.createAnimations();
 
-    // Handle audio context unlock
-    this.unlockAudioContext();
+    // Handle audio context
+    this.setupAudio();
 
     // Start game scenes
     this.scene.start('Kitchen');
@@ -75,7 +98,8 @@ export default class Boot extends Phaser.Scene {
   }
 
   createAnimations() {
-    // Chef walking animations
+    if (!this.textures.exists('chef_red')) return;
+
     ['down', 'up', 'right', 'left'].forEach((direction, index) => {
       this.anims.create({
         key: `chef_walk_${direction}`,
@@ -84,21 +108,39 @@ export default class Boot extends Phaser.Scene {
           end: index * 5 + 4
         }),
         frameRate: 10,
-        repeat: -1
+        repeat: -1,
+        yoyo: true
       });
     });
   }
 
-  unlockAudioContext() {
+  setupAudio() {
     const handleUserGesture = () => {
       if (this.sound.context.state === 'suspended') {
-        this.sound.context.resume();
+        this.sound.context.resume().then(() => {
+          this.hasAudioContext = true;
+        });
       }
       document.removeEventListener('click', handleUserGesture);
       document.removeEventListener('touchend', handleUserGesture);
     };
 
+    // Initial attempt to unlock
+    handleUserGesture();
+
+    // Fallback user gesture handlers
     document.addEventListener('click', handleUserGesture);
     document.addEventListener('touchend', handleUserGesture);
+
+    // Set audio preferences
+    this.sound.pauseOnBlur = false;
+    this.sound.volume = 0.5;
+  }
+
+  handleLoadError(file) {
+    // Replace missing assets with fallback
+    if (file.type === 'image') {
+      this.textures.addBase64(file.key, 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=');
+    }
   }
 }
