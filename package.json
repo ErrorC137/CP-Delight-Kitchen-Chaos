@@ -1,22 +1,24 @@
 {
   "name": "cp-delight-dash",
   "version": "1.0.0",
-  "description": "CP Delight cooking chaos game",
-  "main": "src/server/server.js",
   "scripts": {
-    "start": "node src/server/server.js",
-    "dev": "nodemon src/server/server.js",
-    "build": "webpack --mode production"
+    "start": "webpack serve --mode development --open",
+    "build": "webpack --mode production",
+    "deploy": "gh-pages -d docs"
   },
+  
   "dependencies": {
     "express": "^4.18.2",
     "phaser": "^3.60.0",
     "socket.io": "^4.7.2",
     "uuid": "^9.0.1"
   },
+  
   "devDependencies": {
-    "nodemon": "^3.0.2",
     "webpack": "^5.88.2",
-    "webpack-cli": "^5.1.4"
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.1",
+    "gh-pages": "^6.1.0"
   }
 }
+
