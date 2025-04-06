@@ -41,7 +41,7 @@ module.exports = {
           'http-equiv': 'Content-Security-Policy',
           'content': [
             "default-src 'self'",
-            "connect-src 'self' ws: wss: https://your-actual-server.com", // ← Replace with real backend URL
+            "connect-src 'self' ws: wss: https://errorc137.github.io/CP-Delight-Kitchen-Chaos/", // ← Replace with real backend URL
             "img-src 'self' data: https://cdn.jsdelivr.net",
             "media-src 'self' data:",
             "script-src 'self' 'unsafe-eval' https://cdn.jsdelivr.net https://cdn.socket.io",
