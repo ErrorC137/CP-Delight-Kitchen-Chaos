@@ -1,3 +1,4 @@
+import Phaser from 'phaser';
 import KitchenScene from './scenes/Kitchen.js';
 
 const config = {
@@ -15,4 +16,4 @@ const config = {
   scene: [KitchenScene]
 };
 
-const game = new Phaser.Game(config);
+new Phaser.Game(config);
