@@ -3,9 +3,6 @@ import BootScene from './scenes/Boot.js';
 import KitchenScene from './scenes/Kitchen.js';
 import HUDScene from './scenes/HUD.js';
 
-// Initialize Socket.IO (using CDN version)
-const socket = io('https://errorc137.github.io/CP-Delight-Kitchen-Chaos/'); // Replace with actual server URL
-
 const config = {
   type: Phaser.AUTO,
   parent: 'game-container',
@@ -24,17 +21,29 @@ const config = {
   scene: [BootScene, KitchenScene, HUDScene],
   dom: {
     createContainer: true
+  },
+  callbacks: {
+    postBoot: (game) => {
+      game.registry.set('socket', io('wss://your-game-server.com', { // Replace with actual WebSocket URL
+        transports: ['websocket'],
+        secure: true,
+        reconnectionAttempts: 5
+      }));
+    }
   }
 };
 
-// Global game reference
 const game = new Phaser.Game(config);
 
-// Socket.IO event handlers
-socket.on('connect', () => {
-  console.log('Connected to server:', socket.id);
-});
+// Handle socket events through scene system
+game.events.on('ready', () => {
+  const socket = game.registry.get('socket');
+  
+  socket.on('connect', () => {
+    game.scene.getScene('HUD').handleConnection(true);
+  });
 
-socket.on('disconnect', () => {
-  game.scene.getScene('HUD').showDisconnectWarning();
+  socket.on('disconnect', () => {
+    game.scene.getScene('HUD').handleConnection(false);
+  });
 });
