@@ -52,10 +52,10 @@ module.exports = {
     })
   ],
   resolve: {
-    extensions: ['.js'],
-    fallback: {
-      "fs": false,
-      "path": false // Disable path fallback instead of using path-browserify
+  extensions: ['.js'],
+  fallback: {
+    "fs": false,
+    "path": require.resolve("path-browserify") // Use the actual package
   }
 },
   optimization: {
