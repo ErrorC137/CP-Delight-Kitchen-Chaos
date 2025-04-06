@@ -9,23 +9,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
-          
+          cache: 'npm'
+
       - name: Install dependencies
-        run: npm install  # Changed from npm ci
-      
-      - name: Generate package-lock
-        run: npm install --package-lock-only
-      
+        run: |
+          npm install
+          npm install webpack webpack-cli babel-loader @babel/core @babel/preset-env --save-dev
+
       - name: Build project
         run: npm run build
-        
+
+      - name: Verify build output
+        run: |
+          ls -R docs/  # List built files for debugging
+          [ -f docs/index.html ] || exit 1  # Fail if no index.html
+
       - name: Deploy to GH Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs
+          keep_files: true  # Preserve other files in docs/
