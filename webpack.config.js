@@ -9,6 +9,8 @@ module.exports = {
     path: path.resolve(__dirname, 'docs'),
     publicPath: '/CP-Delight-Kitchen-Chaos/',
     globalObject: 'this'
+  externals: {
+    'socket.io-client': 'io'
   },
   module: {
     rules: [
