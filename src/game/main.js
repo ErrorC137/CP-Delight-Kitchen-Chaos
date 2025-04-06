@@ -1,5 +1,10 @@
 import Phaser from 'phaser';
+import BootScene from './scenes/Boot.js';
 import KitchenScene from './scenes/Kitchen.js';
+import HUDScene from './scenes/HUD.js';
+
+// Initialize Socket.IO (using CDN version)
+const socket = io('https://your-server-url.com'); // Replace with actual server URL
 
 const config = {
   type: Phaser.AUTO,
@@ -11,9 +16,25 @@ const config = {
   },
   physics: {
     default: 'arcade',
-    arcade: { debug: false }
+    arcade: {
+      debug: false,
+      gravity: { y: 0 }
+    }
   },
-  scene: [KitchenScene]
+  scene: [BootScene, KitchenScene, HUDScene],
+  dom: {
+    createContainer: true
+  }
 };
 
-new Phaser.Game(config);
+// Global game reference
+const game = new Phaser.Game(config);
+
+// Socket.IO event handlers
+socket.on('connect', () => {
+  console.log('Connected to server:', socket.id);
+});
+
+socket.on('disconnect', () => {
+  game.scene.getScene('HUD').showDisconnectWarning();
+});
