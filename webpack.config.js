@@ -1,10 +1,11 @@
 const path = require('path');
 
 module.exports = {
-  entry: './src/game/main.js', // Path to your main game file
+  entry: './src/game/main.js',
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'docs'),
+    publicPath: '/CP-Delight-Kitchen-Chaos/' // Match your repo name
   },
   module: {
     rules: [
