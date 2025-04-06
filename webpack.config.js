@@ -39,22 +39,21 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
-      template: './src/index.html',
-      meta: {
-        'Content-Security-Policy': {
-          'http-equiv': 'Content-Security-Policy',
-          'content': [
-            "default-src 'self'",
-            "connect-src 'self' ws: wss: https://your-actual-server.com", // ← MUST replace with your real backend URL
-            "img-src 'self' data: blob: https://cdn.jsdelivr.net",
-            "media-src 'self' data: blob:",
-            "script-src 'self' 'wasm-unsafe-eval' https://cdn.jsdelivr.net https://cdn.socket.io",
-            "style-src 'self' 'unsafe-inline'",
-            "worker-src 'self' blob:"
-          ].join('; ')
-        }
-      }
-    })
+  template: './src/index.html',
+  meta: {
+    'Content-Security-Policy': {
+      'http-equiv': 'Content-Security-Policy',
+      'content': [
+        "default-src 'self'",
+        "connect-src 'self' ws: wss: https://your-server.com",
+        "img-src 'self' data: blob: https://cdn.jsdelivr.net",
+        "script-src 'self' 'wasm-unsafe-eval' https://cdn.jsdelivr.net https://cdn.socket.io",
+        "style-src 'self' 'unsafe-inline'",
+        "worker-src 'self' blob:"
+      ].join('; ')
+    }
+  }
+})
   ],
   resolve: {
     extensions: ['.js'],
