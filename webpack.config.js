@@ -34,17 +34,25 @@ module.exports = {
   },
   plugins: [
     new CleanWebpackPlugin(),
+  plugins: [
     new HtmlWebpackPlugin({
       template: './src/index.html',
-      // Remove favicon line if you don't have one
-      meta: {
+      meta: { // 👈 This section needs to be added
         'Content-Security-Policy': {
           'http-equiv': 'Content-Security-Policy',
-          'content': "default-src 'self' cdn.jsdelivr.net cdn.socket.io; script-src 'self' 'unsafe-eval' cdn.jsdelivr.net cdn.socket.io; connect-src 'self' ws: wss:"
+          'content': [
+            "default-src 'self'",
+            "connect-src 'self' ws: wss: https://errorc137.github.io/CP-Delight-Kitchen-Chaos/", // 👈 Replace with your real server URL
+            "img-src 'self' data: https://cdn.jsdelivr.net",
+            "media-src 'self' data:",
+            "script-src 'self' 'unsafe-eval' https://cdn.jsdelivr.net https://cdn.socket.io",
+            "style-src 'self' 'unsafe-inline'"
+          ].join('; ')
         }
       }
     })
-  ],
+  ]
+};
   resolve: {
     extensions: ['.js'],
     fallback: {
