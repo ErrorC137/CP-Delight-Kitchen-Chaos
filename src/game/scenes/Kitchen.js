@@ -4,39 +4,24 @@ export default class KitchenScene extends Phaser.Scene {
     this.lastDirection = 'down';
   }
 
- preload() {
-  // Verify texture existence before loading
-  if (!this.textures.exists('counter')) {
-    this.load.image('counter', 'assets/sprites/kitchen/counter.png');
+  preload() {
+    // Chef sprite loading should be in Boot scene
   }
-  
-  // Add fallback texture
-  if (!this.textures.exists('missing')) {
-    this.textures.addBase64('missing', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=');
-  }
-}
 
   create() {
-  // Safe texture usage
-  this.add.image(0, 0, this.textures.exists('counter') ? 'counter' : 'missing');
-}
+    // Initialize physics
+    this.physics.world.setBounds(0, 0, 2048, 1536);
     
-    // Create chef character with physics
+    // Create chef - moved inside create()
     this.chef = this.physics.add.sprite(512, 384, 'chef');
     this.chef.setCollideWorldBounds(true);
     
-    // Set up camera
+    // Camera setup
     this.cameras.main.setBounds(0, 0, 2048, 1536);
     this.cameras.main.startFollow(this.chef, true, 0.08, 0.08);
     
     // Input handling
     this.cursors = this.input.keyboard.createCursorKeys();
-    
-    // Animation checks
-    if (!this.anims.exists('walk_down')) {
-      console.error('Animations not found! Check Boot scene loading');
-      this.scene.start('Boot');
-    }
   }
 
   update() {
@@ -45,29 +30,16 @@ export default class KitchenScene extends Phaser.Scene {
     const speed = 200;
     const velocity = new Phaser.Math.Vector2();
     
-    // Handle movement input
-    if (this.cursors.left.isDown) {
-      velocity.x -= 1;
-      this.lastDirection = 'left';
-    }
-    if (this.cursors.right.isDown) {
-      velocity.x += 1;
-      this.lastDirection = 'right';
-    }
-    if (this.cursors.up.isDown) {
-      velocity.y -= 1;
-      this.lastDirection = 'up';
-    }
-    if (this.cursors.down.isDown) {
-      velocity.y += 1;
-      this.lastDirection = 'down';
-    }
+    // Movement logic
+    if (this.cursors.left.isDown) velocity.x -= 1;
+    if (this.cursors.right.isDown) velocity.x += 1;
+    if (this.cursors.up.isDown) velocity.y -= 1;
+    if (this.cursors.down.isDown) velocity.y += 1;
 
-    // Normalize and scale velocity
     velocity.normalize().scale(speed);
     this.chef.setVelocity(velocity.x, velocity.y);
 
-    // Handle animations
+    // Animation handling
     if (velocity.length() > 0) {
       this.chef.anims.play(`walk_${this.lastDirection}`, true);
     } else {
@@ -77,13 +49,7 @@ export default class KitchenScene extends Phaser.Scene {
   }
 
   setIdleFrame() {
-    // Set idle frame based on last direction
-    const frameMap = {
-      down: 0,
-      up: 5,
-      right: 10,
-      left: 15
-    };
+    const frameMap = { down: 0, up: 5, right: 10, left: 15 };
     this.chef.setFrame(frameMap[this.lastDirection]);
   }
 }
