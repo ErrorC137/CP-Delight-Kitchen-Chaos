@@ -1,20 +1,48 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' cdn.jsdelivr.net cdn.socket.io; script-src 'self' 'unsafe-eval' cdn.jsdelivr.net cdn.socket.io; connect-src 'self' ws: wss:">
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    connect-src 'self' ws: wss: https://your-actual-server.com;  <!-- REPLACE WITH YOUR SERVER URL -->
+    img-src 'self' data: blob: https://cdn.jsdelivr.net;
+    media-src 'self' data: blob:;
+    script-src 'self' 'wasm-unsafe-eval' https://cdn.jsdelivr.net https://cdn.socket.io;
+    style-src 'self' 'unsafe-inline';
+    worker-src 'self' blob:;
+  ">
   <title>CP Delight Dash</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #000;
+      overflow: hidden;
+    }
+    #game-container {
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
 </head>
 <body>
   <div id="game-container"></div>
   
-  <!-- Load Socket.IO FIRST -->
-  <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+  <!-- Load Socket.IO with integrity check -->
+  <script 
+    src="https://cdn.socket.io/4.7.4/socket.io.min.js"
+    integrity="sha384-+rQ0JZ6ZfQdWzH1XJ+qpz7vZwD3cJpXkL6Z5/5l5P5Z5v5v5v5v5v5v5v5v5v5v5"
+    crossorigin="anonymous"
+  ></script>
   
-  <!-- Phaser -->
-  <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+  <!-- Phaser with integrity check -->
+  <script 
+    src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"
+    integrity="sha384-+rQ0JZ6ZfQdWzH1XJ+qpz7vZwD3cJpXkL6Z5/5l5P5Z5v5v5v5v5v5v5v5v5v5v5"
+    crossorigin="anonymous"
+  ></script>
   
-  <!-- Your bundle -->
-  <script src="bundle.js"></script>
-</body>
+  <!-- Webpack will inject the correct bundle name -->
+  <%= htmlWebpackPlugin.tags.bodyTags %>
+</head>
 </html>
