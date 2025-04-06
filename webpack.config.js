@@ -8,7 +8,7 @@ module.exports = {
     filename: 'bundle.[contenthash].js',
     path: path.resolve(__dirname, 'docs'),
     publicPath: '/CP-Delight-Kitchen-Chaos/',
-    globalObject: 'this' // Critical for Phaser+SES compatibility
+    globalObject: 'this'
   },
   module: {
     rules: [
@@ -34,15 +34,14 @@ module.exports = {
   },
   plugins: [
     new CleanWebpackPlugin(),
-  plugins: [
     new HtmlWebpackPlugin({
       template: './src/index.html',
-      meta: { // 👈 This section needs to be added
+      meta: {
         'Content-Security-Policy': {
           'http-equiv': 'Content-Security-Policy',
           'content': [
             "default-src 'self'",
-            "connect-src 'self' ws: wss: https://errorc137.github.io/CP-Delight-Kitchen-Chaos/", // 👈 Replace with your real server URL
+            "connect-src 'self' ws: wss: https://your-actual-server.com", // ← Replace with real backend URL
             "img-src 'self' data: https://cdn.jsdelivr.net",
             "media-src 'self' data:",
             "script-src 'self' 'unsafe-eval' https://cdn.jsdelivr.net https://cdn.socket.io",
@@ -51,8 +50,7 @@ module.exports = {
         }
       }
     })
-  ]
-};
+  ],
   resolve: {
     extensions: ['.js'],
     fallback: {
