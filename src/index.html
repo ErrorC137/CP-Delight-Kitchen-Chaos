@@ -1,11 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CP Delight Dash</title>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' cdn.jsdelivr.net cdn.socket.io; script-src 'self' 'unsafe-eval' cdn.jsdelivr.net cdn.socket.io; connect-src 'self' ws: wss:">
+  <title>CP Delight Dash</title>
 </head>
 <body>
-    <div id="game-container"></div>
+  <div id="game-container"></div>
+  
+  <!-- Load Socket.IO FIRST -->
+  <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+  
+  <!-- Phaser -->
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+  
+  <!-- Your bundle -->
+  <script src="bundle.js"></script>
 </body>
 </html>
