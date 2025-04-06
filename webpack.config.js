@@ -55,9 +55,9 @@ module.exports = {
     extensions: ['.js'],
     fallback: {
       "fs": false,
-      "path": require.resolve("path-browserify")
-    }
-  },
+      "path": false // Disable path fallback instead of using path-browserify
+  }
+},
   optimization: {
     minimize: true,
     usedExports: true
