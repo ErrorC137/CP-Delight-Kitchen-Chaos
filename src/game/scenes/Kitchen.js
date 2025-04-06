@@ -4,18 +4,22 @@ export default class KitchenScene extends Phaser.Scene {
     this.lastDirection = 'down';
   }
 
-  preload() {
-    // Load chef spritesheet with error handling
-    this.load.spritesheet('chef', 'assets/sprites/chefs/main_chef.png', {
-      frameWidth: 64,
-      frameHeight: 64,
-      endFrame: 19
-    });
+ preload() {
+  // Verify texture existence before loading
+  if (!this.textures.exists('counter')) {
+    this.load.image('counter', 'assets/sprites/kitchen/counter.png');
   }
+  
+  // Add fallback texture
+  if (!this.textures.exists('missing')) {
+    this.textures.addBase64('missing', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=');
+  }
+}
 
   create() {
-    // Initialize physics
-    this.physics.world.setBounds(0, 0, 2048, 1536); // Set kitchen boundaries
+  // Safe texture usage
+  this.add.image(0, 0, this.textures.exists('counter') ? 'counter' : 'missing');
+}
     
     // Create chef character with physics
     this.chef = this.physics.add.sprite(512, 384, 'chef');
