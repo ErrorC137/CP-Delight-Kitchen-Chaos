@@ -89,12 +89,24 @@ export default class Boot extends Phaser.Scene {
     // Create animations with validation
     this.createAnimations();
 
-    // Handle audio context
-    this.setupAudio();
+      const unlockAudio = () => {
+    if (this.sound.context.state === 'suspended') {
+      this.sound.context.resume();
+    }
+    document.removeEventListener('click', unlockAudio);
+    document.removeEventListener('touchend', unlockAudio);
+  };
 
-    // Start game scenes
-    this.scene.start('Kitchen');
-    this.scene.launch('HUD');
+  // Initial unlock attempt
+  unlockAudio();
+  
+  // User gesture fallback
+  document.addEventListener('click', unlockAudio);
+  document.addEventListener('touchend', unlockAudio);
+
+  // Start game scenes
+  this.scene.start('Kitchen');
+  this.scene.launch('HUD');
   }
 
   createAnimations() {
