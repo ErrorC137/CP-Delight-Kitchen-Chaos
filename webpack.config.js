@@ -31,7 +31,6 @@ module.exports = {
     new HtmlWebpackPlugin({
       title: 'CP Delight Dash',
       template: './src/index.html',
-      favicon: './public/assets/favicon.ico'
     })
   ],
   resolve: {
