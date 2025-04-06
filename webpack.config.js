@@ -9,8 +9,6 @@ module.exports = {
     path: path.resolve(__dirname, 'docs'),
     publicPath: '/CP-Delight-Kitchen-Chaos/',
     globalObject: 'this'
-  externals: {
-    'socket.io-client': 'io'
   },
   module: {
     rules: [
@@ -21,11 +19,7 @@ module.exports = {
           loader: 'babel-loader',
           options: {
             presets: ['@babel/preset-env'],
-            plugins: [
-              ['@babel/plugin-transform-runtime', {
-                regenerator: true
-              }]
-            ]
+            plugins: ['@babel/plugin-transform-runtime']
           }
         }
       },
@@ -41,21 +35,21 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
-  template: './src/index.html',
-  meta: {
-    'Content-Security-Policy': {
-      'http-equiv': 'Content-Security-Policy',
-      'content': [
-        "default-src 'self'",
-        "connect-src 'self' ws: wss: https://your-server.com",
-        "img-src 'self' data: blob: https://cdn.jsdelivr.net",
-        "script-src 'self' 'wasm-unsafe-eval' https://cdn.jsdelivr.net https://cdn.socket.io",
-        "style-src 'self' 'unsafe-inline'",
-        "worker-src 'self' blob:"
-      ].join('; ')
-    }
-  }
-})
+      template: './src/index.html',
+      meta: {
+        'Content-Security-Policy': {
+          'http-equiv': 'Content-Security-Policy',
+          'content': [
+            "default-src 'self'",
+            "connect-src 'self' ws: wss: https://your-server.com",
+            "img-src 'self' data: blob: https://cdn.jsdelivr.net",
+            "script-src 'self' 'wasm-unsafe-eval' https://cdn.jsdelivr.net https://cdn.socket.io",
+            "style-src 'self' 'unsafe-inline'",
+            "worker-src 'self' blob:"
+          ].join('; ')
+        }
+      }
+    })
   ],
   resolve: {
     extensions: ['.js'],
@@ -66,9 +60,6 @@ module.exports = {
   },
   optimization: {
     minimize: true,
-    usedExports: true,
-    splitChunks: {
-      chunks: 'all'
-    }
+    usedExports: true
   }
 };
