@@ -3,12 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="Content-Security-Policy" content="
-    default-src 'self';
-    connect-src 'self' ws: wss: https://your-server.com;
-    img-src 'self' data: blob: https://cdn.jsdelivr.net;
-    script-src 'self' 'wasm-unsafe-eval' https://cdn.jsdelivr.net https://cdn.socket.io;
-    style-src 'self' 'unsafe-inline';
-    worker-src 'self' blob:
+  default-src 'self';
+  connect-src 'self' wss://your-game-server.com ws://localhost:*; 
+  img-src 'self' data: blob: https://cdn.jsdelivr.net;
+  script-src 'self' 'wasm-unsafe-eval' https://cdn.jsdelivr.net https://cdn.socket.io;
+  style-src 'self' 'unsafe-inline';
   ">
   <title>CP Delight Dash</title>
   <style>
