@@ -86,3 +86,43 @@ export default class Kitchen extends Phaser.Scene {
     }
   }
 }
+
+this.interactables = this.physics.add.group();
+levelData.layers.counters.tiles.forEach(tile => {
+  if(tile.properties?.interactable) {
+    const station = this.add.sprite(tile.x * 64, tile.y * 64, 'appliance_fryer')
+      .setInteractive()
+      .on('pointerdown', () => this.handleStationInteraction(tile));
+    this.interactables.add(station);
+  }
+});
+
+createHazards(levelData) {
+  levelData.hazards.forEach(hazard => {
+    this.time.delayedCall(hazard.startTime, () => {
+      const hazardZone = this.add.zone(
+        hazard.area.x, 
+        hazard.area.y,
+        hazard.area.width,
+        hazard.area.height
+      );
+      
+      this.physics.add.existing(hazardZone);
+      this.physics.add.overlap(this.player, hazardZone, () => {
+        this.handleHazardEffect(hazard.type);
+      });
+    });
+  });
+}
+
+handleHazardEffect(type) {
+  switch(type) {
+    case 'grease_spill':
+      this.player.setVelocity(0);
+      this.player.setTint(0xff0000);
+      break;
+    case 'fire':
+      // Implement fire extinguishing mechanic
+      break;
+  }
+}
