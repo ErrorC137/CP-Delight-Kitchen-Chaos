@@ -1,3 +1,4 @@
+import { game } from './main.js';
 export default class Kitchen extends Phaser.Scene {
     constructor() {
         super('Kitchen');
