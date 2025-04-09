@@ -1,128 +1,134 @@
-// src/game/scenes/Kitchen.js
 export default class Kitchen extends Phaser.Scene {
-  constructor() {
-    super('Kitchen');
-  }
-
-  preload() {
-    this.load.json('level1', '../../docs/assets/config/level1.json');
-    this.load.spritesheet('kitchen', '../../docs/assets/sprites/kitchen/kitchen_tiles.png', {
-      frameWidth: 64,
-      frameHeight: 64
-    });
-    this.load.spritesheet('chef', '../../docs/assets/sprites/characters/player.png', {
-      frameWidth: 32,
-      frameHeight: 32
-    });
-  }
-
-  create() {
-    const levelData = this.cache.json.get('level1');
-    this.createMap(levelData);
-    this.createHazards(levelData);
-    this.setupOrders(levelData);
-    this.createPlayer(levelData);
-  }
-
-  createMap(levelData) {
-    // Create tilemap layers from level1.json
-    const map = this.make.tilemap({ key: 'level1' });
-    const tileset = map.addTilesetImage('kitchen');
-    
-    // Create layers
-    const floorLayer = map.createLayer('floor', tileset);
-    const counterLayer = map.createLayer('counters', tileset);
-    
-    // Set collision
-    counterLayer.setCollisionByProperty({ collision: true });
-  }
-
-  createPlayer(levelData) {
-    this.player = this.physics.add.sprite(
-      levelData.playerStart.x,
-      levelData.playerStart.y,
-      'chef'
-    ).setScale(2);
-    
-    // Player animations
-    this.anims.create({
-      key: 'walk',
-      frames: this.anims.generateFrameNumbers('chef', { start: 0, end: 3 }),
-      frameRate: 10,
-      repeat: -1
-    });
-
-    // Enable collision
-    this.physics.add.collider(this.player, counterLayer);
-  }
-
-  setupOrders(levelData) {
-    this.orders = levelData.initialOrders;
-    this.currentOrder = this.orders[0];
-    
-    // Start order timer
-    this.time.addEvent({
-      delay: this.currentOrder.timeLimit,
-      callback: this.failOrder,
-      callbackScope: this
-    });
-  }
-
-  update() {
-    // Handle player movement
-    const cursors = this.input.keyboard.createCursorKeys();
-    
-    if (cursors.left.isDown) {
-      this.player.setVelocityX(-200);
-      this.player.anims.play('walk', true);
-      this.player.flipX = true;
-    } else if (cursors.right.isDown) {
-      this.player.setVelocityX(200);
-      this.player.anims.play('walk', true);
-      this.player.flipX = false;
-    } else {
-      this.player.setVelocityX(0);
-      this.player.anims.stop();
+    constructor() {
+        super('Kitchen');
+        this.orders = [];
+        this.currentOrder = null;
+        this.disasters = ['earthquake', 'fire', 'flood', 'mouseInvasion'];
     }
-  }
-}
 
-this.interactables = this.physics.add.group();
-levelData.layers.counters.tiles.forEach(tile => {
-  if(tile.properties?.interactable) {
-    const station = this.add.sprite(tile.x * 64, tile.y * 64, 'appliance_fryer')
-      .setInteractive()
-      .on('pointerdown', () => this.handleStationInteraction(tile));
-    this.interactables.add(station);
-  }
-});
+    preload() {
+        this.load.spritesheet('player', 'assets/sprites/kitchen/player.png', { frameWidth: 32, frameHeight: 32 });
+        this.load.image('counter', 'assets/sprites/kitchen/counter.png');
+        this.load.image('fryer', 'assets/sprites/kitchen/appliance_fryer.png');
+        this.load.image('chicken', 'assets/sprites/kitchen/ingredient_chicken.png');
+    }
 
-createHazards(levelData) {
-  levelData.hazards.forEach(hazard => {
-    this.time.delayedCall(hazard.startTime, () => {
-      const hazardZone = this.add.zone(
-        hazard.area.x, 
-        hazard.area.y,
-        hazard.area.width,
-        hazard.area.height
-      );
-      
-      this.physics.add.existing(hazardZone);
-      this.physics.add.overlap(this.player, hazardZone, () => {
-        this.handleHazardEffect(hazard.type);
-      });
-    });
-  });
-}
+    create() {
+        // Setup kitchen layout
+        this.createKitchenLayout();
+        this.player = new Player(this, 100, 100);
+        
+        // Game systems
+        this.setupCookingStations();
+        this.setupOrders();
+        this.setupDisasters();
+        
+        // Overcooked-style mechanics
+        this.time.addEvent({
+            delay: 30000,
+            callback: this.increaseDifficulty,
+            callbackScope: this,
+            loop: true
+        });
+    }
 
-handleHazardEffect(type) {
-  switch(type) {
-    case 'grease_spill':
-      this.player.setVelocity(0);
-      this.player.setTint(0xff0000);
-      break;
-    case 'fire':
-      // Implement fire extinguishing mechanic
-      break;
-  }
+    createKitchenLayout() {
+        // Pokémon-style tilemap (simplified)
+        this.add.tileSprite(0, 0, 2048, 1536, 'kitchen_tiles').setOrigin(0);
+        
+        // Counters and appliances
+        this.counters = this.physics.add.staticGroup();
+        this.counters.create(300, 400, 'counter');
+        this.counters.create(500, 400, 'counter');
+        
+        this.fryer = new CookingStation(this, 700, 400, 'fryer');
+    }
+
+    setupCookingStations() {
+        // Cooking interaction logic
+        this.physics.add.overlap(this.player, this.fryer, (player, station) => {
+            if (player.carrying && station.canCook(player.carrying)) {
+                station.startCooking(player.carrying);
+                player.dropItem();
+            }
+        });
+    }
+
+    setupOrders() {
+        // Dynamic order system
+        this.orderTimer = this.time.addEvent({
+            delay: 45000,
+            callback: () => {
+                this.generateOrder();
+                this.orderTimer.delay = Phaser.Math.Between(30000, 45000);
+            },
+            loop: true
+        });
+    }
+
+    setupDisasters() {
+        // Chaotic events system
+        this.disasterTimer = this.time.addEvent({
+            delay: 60000,
+            callback: this.triggerDisaster,
+            callbackScope: this,
+            loop: true
+        });
+    }
+
+    generateOrder() {
+        const recipes = {
+            friedChicken: ['chicken', 'oil'],
+            salad: ['lettuce', 'tomato'],
+            burger: ['patty', 'bun', 'lettuce']
+        };
+        
+        const recipeKeys = Object.keys(recipes);
+        const randomRecipe = recipeKeys[Phaser.Math.Between(0, recipeKeys.length-1)];
+        
+        this.orders.push({
+            recipe: randomRecipe,
+            ingredients: recipes[randomRecipe],
+            timer: this.time.delayedCall(30000, () => this.failOrder())
+        });
+    }
+
+    triggerDisaster() {
+        const disaster = Phaser.Math.RND.pick(this.disasters);
+        
+        switch(disaster) {
+            case 'earthquake':
+                this.cameras.main.shake(3000, 0.02);
+                this.time.addEvent({
+                    delay: 100,
+                    callback: () => {
+                        this.children.each(child => {
+                            if (child.body) child.body.velocity.y += Phaser.Math.Between(-50, 50);
+                        });
+                    },
+                    repeat: 30
+                });
+                break;
+                
+            case 'fire':
+                const fire = this.add.sprite(
+                    Phaser.Math.Between(100, 700),
+                    Phaser.Math.Between(100, 500),
+                    'fire'
+                );
+                fire.setScale(0).play('fire_anim');
+                this.tweens.add({
+                    targets: fire,
+                    scale: 1,
+                    duration: 1000
+                });
+                break;
+        }
+    }
+
+    increaseDifficulty() {
+        this.timeBetweenOrders *= 0.9;
+        this.disasterTimer.delay *= 0.85;
+        this.orderTimer.delay = Phaser.Math.Clamp(this.orderTimer.delay, 15000, 45000);
+    }
 }
