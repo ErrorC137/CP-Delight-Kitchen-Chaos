@@ -1,39 +1,22 @@
 import Phaser from 'phaser';
-import BootScene from './scenes/Boot.js';
-import KitchenScene from './scenes/Kitchen.js';
-import HUDScene from './scenes/HUD.js';
-import io from 'socket.io-client'; // Make sure to import socket.io-client
+import Boot from './scenes/Boot';
+import Kitchen from './scenes/Kitchen';
+import HUD from './scenes/HUD';
 
 const config = {
   type: Phaser.AUTO,
   parent: 'game-container',
-  scale: {
-    mode: Phaser.Scale.FIT,
-    width: 1024,
-    height: 768
-  },
+  width: 2048, // Match level1.json dimensions
+  height: 1536,
+  pixelArt: true,
+  scene: [Boot, Kitchen, HUD],
   physics: {
     default: 'arcade',
-    arcade: {
-      debug: false,
-      gravity: { y: 0 }
-    }
-  },
-  render: {
-    antialiasGL: false,
-    pixelArt: true,
-    roundPixels: true,
-    powerPreference: 'high-performance'
-  },
-  textures: {
-    generateMipMaps: false
-  },
-  scene: [BootScene, KitchenScene, HUDScene],
-  dom: {
-    createContainer: true
+    arcade: { debug: false }
   }
 };
 
+const game = new Phaser.Game(config);
 // Initialize game instance
 const game = new Phaser.Game(config);
 
