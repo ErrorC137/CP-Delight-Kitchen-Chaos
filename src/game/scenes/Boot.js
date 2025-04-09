@@ -1,3 +1,4 @@
+import { game } from './main.js';
 export default class Boot extends Phaser.Scene {
   constructor() {
     super({ key: 'Boot' });
