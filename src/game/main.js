@@ -16,7 +16,6 @@ const config = {
   }
 };
 
-const game = new Phaser.Game(config);
 // Initialize game instance
 const game = new Phaser.Game(config);
 
