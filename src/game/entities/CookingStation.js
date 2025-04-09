@@ -1,62 +1,35 @@
-export default class CookingStation extends Phaser.GameObjects.Container {
+export default class CookingStation extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, type) {
-      super(scene, x, y);
-      
-      // Station setup
-      this.stationType = type;
-      this.isBusy = false;
-      this.currentItem = null;
-      
-      // Visual elements
-      this.base = scene.add.sprite(0, 0, type);
-      this.progressBar = this.createProgressBar(scene);
-      
-      this.add([this.base, this.progressBar]);
-      scene.add.existing(this);
-      
-      // Physics setup
-      scene.physics.add.existing(this.base);
-      this.base.body.setSize(80, 60);
+        super(scene, x, y, type);
+        scene.add.existing(this);
+        scene.physics.add.existing(this);
+        
+        this.type = type;
+        this.isCooking = false;
+        this.progress = 0;
     }
-  
-    createProgressBar(scene) {
-      const bar = scene.add.graphics();
-      const fill = scene.add.graphics();
-      
-      bar.fillStyle(0x444444, 1);
-      bar.fillRect(-40, 50, 80, 8);
-      
-      return bar;
+
+    canCook(item) {
+        const validIngredients = {
+            fryer: ['chicken', 'fish'],
+            oven: ['dough', 'meat'],
+            mixer: ['lettuce', 'tomato']
+        };
+        return validIngredients[this.type].includes(item.texture.key);
     }
-  
-    updateProgress(progress) {
-      this.progressBar.clear();
-      this.progressBar.fillStyle(0x00FF00, 1);
-      this.progressBar.fillRect(-40, 50, 80 * progress, 8);
+
+    startCooking(ingredient) {
+        this.isCooking = true;
+        this.scene.time.addEvent({
+            delay: 5000,
+            callback: () => this.finishCooking(ingredient),
+            callbackScope: this
+        });
     }
-  
-    startCooking(player) {
-      if (this.isBusy || !player.carrying) return;
-  
-      this.isBusy = true;
-      this.currentItem = player.carrying;
-      player.carrying = null;
-      
-      // Cooking process
-      this.scene.time.addEvent({
-        delay: 3000,
-        callback: () => {
-          this.completeCooking();
-          this.isBusy = false;
-        },
-        callbackScope: this
-      });
+
+    finishCooking(ingredient) {
+        this.isCooking = false;
+        const cookedItem = this.scene.add.sprite(this.x, this.y, `${ingredient.texture.key}_cooked`);
+        cookedItem.setData('value', ingredient.getData('value') * 2);
     }
-  
-    completeCooking() {
-      this.currentItem.destroy();
-      this.scene.hud.updateScore(100);
-      this.scene.sound.play('bell');
-      this.progressBar.clear();
-    }
-  }
+}
