@@ -57,3 +57,5 @@ game.events.once('ready', () => {
     game.registry.remove('socket');
   });
 });
+
+export { game };
