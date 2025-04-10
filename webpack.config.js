@@ -1,6 +1,5 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
@@ -41,33 +40,12 @@ module.exports = {
       template: 'src/index.html',
       filename: 'index.html',
       inject: 'body',
-      favicon: 'src/assets/favicon.png',
       minify: {
         collapseWhitespace: true,
         removeComments: true,
         removeRedundantAttributes: true,
         useShortDoctype: true
       }
-    }),
-    new CopyWebpackPlugin({
-      patterns: [
-        {
-          from: 'src/assets',
-          to: 'assets',
-          noErrorOnMissing: true,
-          globOptions: {
-            ignore: ['**/.DS_Store']
-          }
-        },
-        {
-          from: 'docs/404.html',
-          to: '404.html'
-        },
-        {
-          from: 'docs/.nojekyll',
-          to: '.nojekyll'
-        }
-      ]
     })
   ],
   resolve: {
@@ -85,12 +63,6 @@ module.exports = {
           name: 'phaser',
           chunks: 'all',
           priority: 10
-        },
-        vendor: {
-          test: /[\\/]node_modules[\\/]/,
-          name: 'vendors',
-          chunks: 'all',
-          priority: 5
         }
       }
     }
