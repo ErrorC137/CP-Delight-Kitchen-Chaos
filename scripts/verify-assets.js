@@ -2,30 +2,39 @@ const fs = require('fs');
 const path = require('path');
 
 const requiredAssets = [
-  'config/level1.json',
-  'sprites/kitchen/counter.png',
-  'sprites/kitchen/ingredient_chicken.png',
-  'audio/sfx/bell.mp3'
+  { path: 'config/level1.json', minSize: 20 }, // At least 20 bytes
+  { path: 'sprites/kitchen/counter.png', minSize: 100 }, // At least 100 bytes
+  { path: 'sprites/kitchen/ingredient_chicken.png', minSize: 100 },
+  { path: 'audio/sfx/bell.mp3', minSize: 1000 } // At least 1KB
 ];
 
 console.log('=== Verifying Assets ===');
 
-let allAssetsExist = true;
+let allAssetsValid = true;
 const assetsBase = path.join(__dirname, '../src/assets');
 
-requiredAssets.forEach(asset => {
-  const fullPath = path.join(assetsBase, asset);
+requiredAssets.forEach(({path: assetPath, minSize}) => {
+  const fullPath = path.join(assetsBase, assetPath);
+  
   if (!fs.existsSync(fullPath)) {
-    console.error(`❌ Missing asset: ${asset}`);
-    allAssetsExist = false;
+    console.error(`❌ Missing asset: ${assetPath}`);
+    allAssetsValid = false;
+    return;
+  }
+
+  const stats = fs.statSync(fullPath);
+  if (stats.size < minSize) {
+    console.error(`❌ Asset too small (${stats.size} bytes): ${assetPath}`);
+    console.error(`   Expected at least ${minSize} bytes`);
+    allAssetsValid = false;
   } else {
-    console.log(`✓ Found: ${asset}`);
+    console.log(`✓ Valid: ${assetPath} (${stats.size} bytes)`);
   }
 });
 
-if (!allAssetsExist) {
-  console.error('❌ Some assets are missing!');
+if (!allAssetsValid) {
+  console.error('❌ Some assets are invalid or missing!');
   process.exit(1);
 }
 
-console.log('✓ All required assets verified');
+console.log('✓ All assets verified');
