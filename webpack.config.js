@@ -2,17 +2,18 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-  // Use a string entry so that the main bundle is named based on our output.filename.
-  entry: './src/game/main.js',
+  // Explicitly name the entry point
+  entry: {
+    main: './src/game/main.js',
+  },
 
   output: {
-    // Output directory for GitHub Pages
     path: path.resolve(__dirname, 'docs'),
-    // Force the main bundle to be "bundle.js"
-    filename: 'bundle.js',
-    // Any additional chunks will be emitted into the "chunks" folder with unique names
+    // Use [name] placeholder to generate unique filenames
+    filename: '[name].bundle.js',
+    // Organize additional chunks in a subfolder
     chunkFilename: 'chunks/[name].bundle.js',
-    // Use a relative public path so assets load correctly on GitHub Pages
+    // Use relative path for GitHub Pages compatibility
     publicPath: './'
   },
 
@@ -47,14 +48,13 @@ module.exports = {
   plugins: [
     // Automatically generate an index.html file with injected script tags
     new HtmlWebpackPlugin({
-      template: 'src/index.html', // Our HTML template file
-      filename: 'index.html',       // Will be placed in the "docs" folder
-      inject: 'body'                // Scripts will be injected at the end of the <body>
+      template: 'src/index.html',
+      filename: 'index.html',
+      inject: 'body'
     })
   ],
 
   devServer: {
-    // Local development server configuration
     static: path.join(__dirname, 'docs'),
     open: true,
     compress: true,
@@ -64,9 +64,9 @@ module.exports = {
   },
 
   optimization: {
-    // Extract Webpack runtime into its own file (e.g., runtime.bundle.js)
+    // Extract Webpack runtime into its own file
     runtimeChunk: 'single',
-    // Configure code splitting for vendor libraries such as Phaser
+    // Configure code splitting for vendor libraries
     splitChunks: {
       cacheGroups: {
         phaser: {
