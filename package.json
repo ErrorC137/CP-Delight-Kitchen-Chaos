@@ -2,8 +2,8 @@
   "name": "kitchen-chaos",
   "version": "1.0.0",
   "scripts": {
-    "prebuild": "node scripts/verify-assets.js",
-    "build": "webpack --mode production",
+    "prebuild": "node scripts/verify-assets.js --check-size",
+    "build": "webpack --mode production"
     "start": "webpack serve --mode development --open",
     "deploy": "gh-pages -d docs"
   },
