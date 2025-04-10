@@ -87,4 +87,12 @@ module.exports = {
       }
     }
   }
+  resolve: {
+  extensions: ['.js'],
+  alias: {
+    phaser: path.resolve(__dirname, 'node_modules/phaser/dist/phaser.js'),
+    '@entities': path.resolve(__dirname, 'src/game/entities'),
+    '@scenes': path.resolve(__dirname, 'src/game/scenes')
+  }
+},
 };
