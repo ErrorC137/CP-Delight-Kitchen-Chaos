@@ -2,10 +2,6 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const fs = require('fs');
-
-// Verify assets exist before building
-const assetsExist = fs.existsSync(path.resolve(__dirname, 'src/assets'));
 
 module.exports = {
   entry: {
@@ -52,20 +48,18 @@ module.exports = {
         useShortDoctype: true
       }
     }),
-    ...(assetsExist ? [
-      new CopyWebpackPlugin({
-        patterns: [
-          {
-            from: 'src/assets',
-            to: 'assets',
-            globOptions: {
-              ignore: ['**/.DS_Store'],
-              dot: true
-            }
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: 'src/assets',
+          to: 'assets',
+          noErrorOnMissing: false, // Will fail if assets are missing
+          globOptions: {
+            ignore: ['**/.DS_Store']
           }
-        ]
-      })
-    ] : [])
+        }
+      ]
+    })
   ],
   resolve: {
     extensions: ['.js'],
