@@ -2,6 +2,11 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const fs = require('fs');
+
+// Check if favicon exists to prevent build errors
+const faviconPath = path.resolve(__dirname, 'src/assets/favicon.png');
+const hasFavicon = fs.existsSync(faviconPath);
 
 module.exports = {
   entry: {
@@ -41,12 +46,16 @@ module.exports = {
       template: 'src/index.html',
       filename: 'index.html',
       inject: 'body',
-      // Removed favicon reference - add it back if you create the file
+      ...(hasFavicon && { favicon: faviconPath }), // Only include if favicon exists
       minify: {
         collapseWhitespace: true,
         removeComments: true,
         removeRedundantAttributes: true,
         useShortDoctype: true
+      },
+      meta: {
+        viewport: 'width=device-width, initial-scale=1.0',
+        'theme-color': '#000000'
       }
     }),
     new CopyWebpackPlugin({
@@ -56,8 +65,20 @@ module.exports = {
           to: 'assets',
           noErrorOnMissing: true,
           globOptions: {
-            ignore: ['**/.DS_Store']
+            ignore: [
+              '**/.DS_Store',
+              '**/Thumbs.db',
+              ...(!hasFavicon ? [] : []) // Additional ignore patterns if needed
+            ]
           }
+        },
+        {
+          from: 'docs/404.html',
+          to: '404.html'
+        },
+        {
+          from: 'docs/.nojekyll',
+          to: '.nojekyll'
         }
       ]
     })
@@ -65,7 +86,9 @@ module.exports = {
   resolve: {
     extensions: ['.js'],
     alias: {
-      phaser: path.resolve(__dirname, 'node_modules/phaser/dist/phaser.js')
+      phaser: path.resolve(__dirname, 'node_modules/phaser/dist/phaser.js'),
+      '@entities': path.resolve(__dirname, 'src/game/entities'),
+      '@scenes': path.resolve(__dirname, 'src/game/scenes')
     }
   },
   optimization: {
@@ -76,7 +99,14 @@ module.exports = {
           test: /[\\/]node_modules[\\/]phaser[\\/]/,
           name: 'phaser',
           chunks: 'all',
-          priority: 10
+          priority: 10,
+          enforce: true
+        },
+        vendors: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          chunks: 'all',
+          priority: 5
         }
       }
     }
@@ -85,5 +115,9 @@ module.exports = {
     hints: false,
     maxEntrypointSize: 512000,
     maxAssetSize: 512000
+  },
+  stats: {
+    warningsFilter: /favicon/, // Suppress favicon warnings
+    children: false // Cleaner output
   }
 };
