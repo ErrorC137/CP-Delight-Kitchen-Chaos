@@ -88,4 +88,6 @@ if (process.env.NODE_ENV === 'development') {
   window.game = game;
 }
 
-export { game };
+if (process.env.NODE_ENV === 'development') {
+  window.__GAME__ = game;
+}
