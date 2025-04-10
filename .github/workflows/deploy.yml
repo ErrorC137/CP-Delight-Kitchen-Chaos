@@ -1,37 +1,46 @@
-name: Deploy to GitHub Pages
+name: 🚀 Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   deploy:
+    name: Build and Deploy
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
 
-      - name: Setup Node
+    steps:
+      # 1. Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2. Setup Node environment with caching
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
           cache: 'npm'
 
+      # 3. Install all dependencies cleanly
       - name: Install dependencies
-        run: |
-          npm install
-          npm install webpack webpack-cli babel-loader @babel/core @babel/preset-env --save-dev
+        run: npm ci
 
-      - name: Build project
+      # 4. Build the project into /docs
+      - name: Build the project with Webpack
         run: npm run build
 
-      - name: Verify build output
+      # 5. Validate output
+      - name: Verify build output exists
         run: |
-          ls -R docs/  # List built files for debugging
-          [ -f docs/index.html ] || exit 1  # Fail if no index.html
+          ls -R docs/
+          test -f docs/index.html || (echo "Missing index.html!" && exit 1)
+          test -f docs/bundle.js || (echo "Missing bundle.js!" && exit 1)
 
-      - name: Deploy to GH Pages
+      # 6. Deploy the docs/ folder to GitHub Pages branch
+      - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs
-          keep_files: true  # Preserve other files in docs/
+          keep_files: false  # Ensures old files are removed before new deploy
