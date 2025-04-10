@@ -4,43 +4,86 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'src/**'
+      - 'webpack.config.js'
+      - 'package.json'
+      - '.github/workflows/deploy.yml'
 
 jobs:
   deploy:
     name: Build and Deploy
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
-      # 1. Checkout the repository
+      # 1. Checkout the repository with full history
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Needed for proper version info
 
-      # 2. Setup Node environment with caching
+      # 2. Setup Node.js environment with caching
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
           cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
 
-      # 3. Install all dependencies cleanly
+      # 3. Install dependencies with clean install
       - name: Install dependencies
-        run: npm ci
-
-      # 4. Build the project into /docs
-      - name: Build the project with Webpack
-        run: npm run build
-
-      # 5. Validate output
-      - name: Verify build output exists
         run: |
-          ls -R docs/
-          test -f docs/index.html || (echo "Missing index.html!" && exit 1)
-          test -f docs/bundle.js || (echo "Missing bundle.js!" && exit 1)
+          npm ci
+          npm cache verify
 
-      # 6. Deploy the docs/ folder to GitHub Pages branch
+      # 4. Build the project with production mode
+      - name: Build the project
+        run: |
+          npm run build
+          # Verify critical assets
+          test -d docs/assets || (echo "Missing assets directory!" && exit 1)
+          test -f docs/assets/config/level1.json || (echo "Missing level config!" && exit 1)
+
+      # 5. Comprehensive output validation
+      - name: Verify build output
+        run: |
+          echo "=== Build Artifacts ==="
+          ls -R docs/
+          
+          echo "=== Validating Required Files ==="
+          REQUIRED_FILES=(
+            "docs/index.html"
+            "docs/main.bundle.js"
+            "docs/404.html"
+            "docs/assets/config/level1.json"
+          )
+          
+          for file in "${REQUIRED_FILES[@]}"; do
+            if [ ! -f "$file" ] && [ ! -d "$file" ]; then
+              echo "❌ Missing required file/directory: $file"
+              exit 1
+            else
+              echo "✓ Found: $file"
+            fi
+          done
+          
+          echo "=== Bundle Size Check ==="
+          MAX_BUNDLE_SIZE=512000  # 500KB
+          BUNDLE_SIZE=$(stat -f%z docs/main.bundle.js)
+          if [ "$BUNDLE_SIZE" -gt "$MAX_BUNDLE_SIZE" ]; then
+            echo "❌ Bundle size exceeds limit: $BUNDLE_SIZE > $MAX_BUNDLE_SIZE"
+            exit 1
+          else
+            echo "✓ Bundle size OK: $BUNDLE_SIZE bytes"
+          fi
+
+      # 6. Deploy to GitHub Pages with cleanup
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs
-          keep_files: false  # Ensures old files are removed before new deploy
+          keep_files: false
+          force_orphan: true  # Ensures clean history
+          enable_jekyll: false # Important for SPA
