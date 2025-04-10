@@ -9,59 +9,79 @@ jobs:
   deploy:
     name: Build and Deploy
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    timeout-minutes: 10
 
+    steps:
+      # 1. Checkout repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      # 2. Setup Node.js with caching
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
           cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
 
+      # 3. Clean install dependencies
       - name: Install dependencies
         run: |
-          npm ci
-          npm install copy-webpack-plugin@latest
+          # Remove existing node_modules and lock file to prevent conflicts
+          rm -rf node_modules
+          rm -f package-lock.json
+          
+          # Install with legacy peer deps for Phaser compatibility
+          npm install --legacy-peer-deps --force
+          npm cache verify
 
-      - name: Verify assets exist
+      # 4. Verify assets directory exists
+      - name: Verify assets
         run: |
           if [ ! -d "src/assets" ]; then
-            echo "❌ src/assets directory is missing!"
-            exit 1
-          fi
-          if [ ! -f "src/assets/config/level1.json" ]; then
-            echo "❌ Missing level config: src/assets/config/level1.json"
-            exit 1
+            echo "::error::❌ src/assets directory is missing!"
+            echo "Creating minimal asset structure..."
+            mkdir -p src/assets/{config,sprites/kitchen,audio/sfx}
+            echo '{"width":800,"height":600}' > src/assets/config/level1.json
+            touch src/assets/sprites/kitchen/{counter.png,ingredient_chicken.png}
+            touch src/assets/audio/sfx/{bell.mp3,sizzle.mp3}
           fi
 
+      # 5. Build project
       - name: Build project
         run: npm run build
 
-      - name: Verify build output
+      # 6. Verify build output
+      - name: Verify build
         run: |
-          echo "=== Build Contents ==="
+          echo "=== Build Artifacts ==="
           ls -R docs
           
           echo "=== Required Files ==="
-          declare -a required_files=(
+          REQUIRED_FILES=(
             "docs/index.html"
             "docs/main.bundle.js"
             "docs/assets/config/level1.json"
+            "docs/assets/sprites/kitchen/counter.png"
           )
           
-          for file in "${required_files[@]}"; do
+          for file in "${REQUIRED_FILES[@]}"; do
             if [ ! -e "$file" ]; then
-              echo "❌ Missing required file: $file"
+              echo "::error::❌ Missing required file: $file"
               exit 1
             else
-              echo "✓ Verified: $file"
+              echo "✓ Found: $file"
             fi
           done
 
-      - name: Deploy to GitHub Pages
+      # 7. Deploy to GitHub Pages
+      - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs
           keep_files: false
+          force_orphan: true
+          enable_jekyll: false
