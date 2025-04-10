@@ -6,7 +6,7 @@
     "build": "webpack --mode production",
     "start": "webpack serve --mode development --open",
     "deploy": "gh-pages -d docs",
-    "setup-assets": "mkdir -p src/assets/{config,sprites/kitchen,audio/sfx} && echo '{\"width\":800,\"height\":600}' > src/assets/config/level1.json && touch src/assets/sprites/kitchen/{counter.png,ingredient_chicken.png} src/assets/audio/sfx/{bell.mp3,sizzle.mp3}"
+    "setup-assets": "node scripts/setup-assets.js"
   },
   "dependencies": {
     "phaser": "^3.60.0",
