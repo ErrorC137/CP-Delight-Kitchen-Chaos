@@ -5,6 +5,7 @@
     "start": "webpack serve --mode development --open",
     "build": "webpack --mode production",
     "deploy": "gh-pages -d docs"
+    "homepage": "https://github.com/ErrorC137/CP-Delight-Kitchen-Chaos"
   },
   "dependencies": {
     "express": "^4.18.2",
