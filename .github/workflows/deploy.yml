@@ -12,8 +12,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -23,25 +21,17 @@ jobs:
 
       - name: Install dependencies
         run: |
-          # Remove existing node_modules and lock file
-          rm -rf node_modules
-          rm -f package-lock.json
-          
-          # Install all dependencies fresh
           npm install
           npm cache verify
 
-      - name: Verify assets
+      - name: Setup assets
         run: |
           if [ ! -d "src/assets" ]; then
-            echo "::error::❌ src/assets directory is missing!"
-            exit 1
+            npm run setup-assets
           fi
-          if [ $(find src/assets -type f -size 0 | wc -l) -gt 0 ]; then
-            echo "::error::❌ Empty assets detected!"
-            find src/assets -type f -size 0 -exec echo "   {} is empty" \;
-            exit 1
-          fi
+
+      - name: Verify assets
+        run: npm run prebuild
 
       - name: Build project
         run: npm run build
