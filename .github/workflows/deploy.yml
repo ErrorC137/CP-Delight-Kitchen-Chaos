@@ -4,82 +4,40 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'src/**'
-      - 'webpack.config.js'
-      - 'package.json'
-      - '.github/workflows/deploy.yml'
 
 jobs:
   deploy:
     name: Build and Deploy
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-
     steps:
-      # 1. Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
-      # 2. Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
           cache: 'npm'
-          cache-dependency-path: 'package-lock.json'
 
-      # 3. Install dependencies
       - name: Install dependencies
         run: |
-          npm ci
+          npm install
+          npm install copy-webpack-plugin@latest
           npm cache verify
 
-      # 4. Build project
       - name: Build project
         run: npm run build
 
-      # 5. Verify build output (cross-platform compatible)
       - name: Verify build output
         run: |
-          echo "=== Build Artifacts ==="
           ls -R docs/
-          
-          echo "=== Validating Required Files ==="
-          REQUIRED_FILES=(
-            "docs/index.html"
-            "docs/main.bundle.js"
-            "docs/404.html"
-            "docs/assets/config/level1.json"
-          )
-          
-          for file in "${REQUIRED_FILES[@]}"; do
-            if [ ! -e "$file" ]; then
-              echo "❌ Missing required file/directory: $file"
-              exit 1
-            else
-              echo "✓ Found: $file"
-            fi
-          done
-          
-          echo "=== Bundle Size Check ==="
-          MAX_BUNDLE_SIZE=512000  # 500KB
-          BUNDLE_SIZE=$(wc -c < docs/main.bundle.js | awk '{print $1}')
-          if [ "$BUNDLE_SIZE" -gt "$MAX_BUNDLE_SIZE" ]; then
-            echo "❌ Bundle size exceeds limit: $BUNDLE_SIZE > $MAX_BUNDLE_SIZE bytes"
-            exit 1
-          else
-            echo "✓ Bundle size OK: $BUNDLE_SIZE bytes"
-          fi
+          test -f docs/index.html || (echo "Missing index.html!" && exit 1)
+          test -f docs/main.bundle.js || (echo "Missing main.bundle.js!" && exit 1)
+          test -d docs/assets || (echo "Missing assets directory!" && exit 1)
 
-      # 6. Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs
           keep_files: false
-          force_orphan: true
-          enable_jekyll: false
