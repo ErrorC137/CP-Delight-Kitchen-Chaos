@@ -1,89 +1,118 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
-  // Explicitly name the entry point
   entry: {
     main: './src/game/main.js',
   },
-
   output: {
     path: path.resolve(__dirname, 'docs'),
-    // Use [name] placeholder to generate unique filenames
     filename: '[name].bundle.js',
-    // Organize additional chunks in a subfolder
-    chunkFilename: 'chunks/[name].bundle.js',
-    // Use relative path for GitHub Pages compatibility
-    publicPath: './'
+    chunkFilename: 'chunks/[name].[contenthash].js',
+    publicPath: './',
   },
-
   module: {
     rules: [
-      // Transpile JavaScript using Babel
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        use: 'babel-loader'
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env'],
+            plugins: ['@babel/plugin-transform-runtime']
+          }
+        }
       },
-      // Process images, JSON, and other assets
       {
-        test: /\.(png|jpe?g|gif|svg|json)$/,
+        test: /\.(png|jpe?g|gif|svg|json|mp3|ogg|wav)$/i,
         type: 'asset/resource',
         generator: {
-          // Place assets in the "docs/assets" folder
-          filename: 'assets/[name][ext]'
+          filename: 'assets/[path][name][ext]',
         }
       }
     ]
   },
-
-  resolve: {
-    extensions: ['.js'],
-    alias: {
-      // Ensure Phaser resolves correctly (using Phaser's built file)
-      phaser: path.resolve(__dirname, 'node_modules/phaser/dist/phaser.js')
-    }
-  },
-
   plugins: [
-    // Automatically generate an index.html file with injected script tags
+    new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
       template: 'src/index.html',
       filename: 'index.html',
-      inject: 'body'
+      inject: 'body',
+      favicon: 'src/assets/favicon.png',
+      minify: {
+        collapseWhitespace: true,
+        removeComments: true,
+        removeRedundantAttributes: true,
+        useShortDoctype: true
+      }
+    }),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: 'src/assets',
+          to: 'assets',
+          noErrorOnMissing: true,
+          globOptions: {
+            ignore: ['**/.DS_Store']
+          }
+        },
+        {
+          from: 'docs/404.html',
+          to: '404.html'
+        },
+        {
+          from: 'docs/.nojekyll',
+          to: '.nojekyll'
+        }
+      ]
     })
   ],
-
-  devServer: {
-    static: path.join(__dirname, 'docs'),
-    open: true,
-    compress: true,
-    hot: true,
-    port: 8080,
-    historyApiFallback: true
+  resolve: {
+    extensions: ['.js'],
+    alias: {
+      phaser: path.resolve(__dirname, 'node_modules/phaser/dist/phaser.js')
+    }
   },
-
   optimization: {
-    // Extract Webpack runtime into its own file
     runtimeChunk: 'single',
-    // Configure code splitting for vendor libraries
     splitChunks: {
       cacheGroups: {
         phaser: {
           test: /[\\/]node_modules[\\/]phaser[\\/]/,
           name: 'phaser',
           chunks: 'all',
-          enforce: true,
           priority: 10
+        },
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          chunks: 'all',
+          priority: 5
         }
       }
-    },
-    minimize: true
+    }
   },
-
   performance: {
-    // Set performance limits to avoid warnings
+    hints: false,
     maxEntrypointSize: 512000,
     maxAssetSize: 512000
+  },
+  devServer: {
+    static: {
+      directory: path.join(__dirname, 'docs'),
+    },
+    compress: true,
+    port: 8080,
+    hot: true,
+    open: true,
+    client: {
+      overlay: {
+        warnings: true,
+        errors: true
+      }
+    }
   }
 };
