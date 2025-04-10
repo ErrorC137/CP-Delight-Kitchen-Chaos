@@ -2,31 +2,36 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-  // Entry point for your game
+  // Entry point for the application
   entry: './src/game/main.js',
 
-  // Output configuration for GitHub Pages (serves from /docs)
+  // Output configuration for GitHub Pages
   output: {
-    path: path.resolve(__dirname, 'docs'),    // Output directory for GitHub Pages
-    filename: 'bundle.js',                    // Bundled JS file
-    publicPath: './'                          // Use relative paths for GitHub Pages
+    // Output directory for the production build (GitHub Pages serves from "docs")
+    path: path.resolve(__dirname, 'docs'),
+    // Filename for the main bundle
+    filename: 'bundle.js',
+    // Filename pattern for additional (split) chunks
+    chunkFilename: '[name].bundle.js',
+    // Set relative public path for GitHub Pages
+    publicPath: './'
   },
 
   module: {
     rules: [
-      // Transpile JS using Babel
+      // Transpile ES6+ JavaScript using Babel
       {
         test: /\.js$/,
         exclude: /node_modules/,
         use: 'babel-loader'
       },
 
-      // Load image and JSON assets
+      // Process image, JSON, and other asset files
       {
         test: /\.(png|jpe?g|gif|svg|json)$/,
         type: 'asset/resource',
         generator: {
-          filename: 'assets/[name][ext]'      // Output all assets into docs/assets/
+          filename: 'assets/[name][ext]' // Place assets in the "docs/assets" folder
         }
       }
     ]
@@ -35,21 +40,21 @@ module.exports = {
   resolve: {
     extensions: ['.js'],
     alias: {
-      // Ensure Phaser resolves correctly
+      // Ensure Phaser resolves correctly (using the full build)
       phaser: path.resolve(__dirname, 'node_modules/phaser/dist/phaser.js')
     }
   },
 
   plugins: [
-    // Auto-generates index.html with <script> injected
+    // Generate index.html in the output directory with the bundle injected
     new HtmlWebpackPlugin({
-      template: 'src/index.html',             // Use our template
-      filename: 'index.html',                 // Output to docs/index.html
-      inject: 'body'                          // Inject script at the end of <body>
+      template: 'src/index.html', // Your HTML template file
+      filename: 'index.html',     // Output file in the "docs" folder
+      inject: 'body'              // Inject <script> at the end of the <body>
     })
   ],
 
-  // Optional but useful during development
+  // Development server configuration (useful during local development)
   devServer: {
     static: path.join(__dirname, 'docs'),
     open: true,
@@ -59,14 +64,14 @@ module.exports = {
     historyApiFallback: true
   },
 
-  // Optimize final bundle
+  // Optimization settings for production build
   optimization: {
     minimize: true,
     splitChunks: {
       cacheGroups: {
         phaser: {
-          test: /[\\/]node_modules[\\/]phaser[\\/]/,
-          name: 'phaser',
+          test: /[\\/]node_modules[\\/]phaser[\\/]/, // Match Phaser in node_modules
+          name: 'phaser',                              // Name the chunk "phaser"
           chunks: 'all',
           priority: 10
         }
@@ -74,7 +79,7 @@ module.exports = {
     }
   },
 
-  // Performance constraints to avoid warnings
+  // Set performance limits to prevent large bundle warnings
   performance: {
     maxEntrypointSize: 512000,
     maxAssetSize: 512000
