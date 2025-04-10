@@ -1,43 +1,42 @@
 const fs = require('fs');
 const path = require('path');
 
-const assetsStructure = {
-  'config/level1.json': JSON.stringify({
-    width: 800,
-    height: 600,
-    tileSize: 64,
-    playerStart: {x: 100, y: 100}
-  }, null, 2),
-  'sprites/kitchen/counter.png': '',
-  'sprites/kitchen/ingredient_chicken.png': '',
-  'audio/sfx/bell.mp3': '',
-  'audio/sfx/sizzle.mp3': ''
-};
+const requiredAssets = [
+  'config/level1.json',
+  'sprites/kitchen/counter.png',
+  'sprites/kitchen/ingredient_chicken.png'
+];
 
-console.log('Setting up asset structure...');
+console.log('=== Verifying Assets ===');
 
-try {
-  // Create all directories first
-  Object.keys(assetsStructure).forEach(filePath => {
-    const dir = path.dirname(`src/assets/${filePath}`);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-  });
-
-  // Create all files
-  Object.entries(assetsStructure).forEach(([filePath, content]) => {
-    const fullPath = `src/assets/${filePath}`;
-    if (!fs.existsSync(fullPath)) {
-      fs.writeFileSync(fullPath, content);
-      console.log(`Created: ${fullPath}`);
-    } else {
-      console.log(`Exists: ${fullPath}`);
-    }
-  });
-
-  console.log('✓ Asset structure ready');
-} catch (error) {
-  console.error('❌ Error setting up assets:', error.message);
+// Check if assets directory exists
+const assetsBase = path.join(__dirname, '../src/assets');
+if (!fs.existsSync(assetsBase)) {
+  console.error('❌ src/assets directory is missing!');
+  console.info('💡 Run: npm run setup-assets');
   process.exit(1);
 }
+
+// Verify each required asset
+let allAssetsValid = true;
+requiredAssets.forEach(asset => {
+  const fullPath = path.join(assetsBase, asset);
+  
+  if (!fs.existsSync(fullPath)) {
+    console.error(`❌ Missing: ${asset}`);
+    allAssetsValid = false;
+  } else if (fs.statSync(fullPath).size === 0) {
+    console.error(`❌ Empty file: ${asset}`);
+    allAssetsValid = false;
+  } else {
+    console.log(`✓ Found: ${asset}`);
+  }
+});
+
+if (!allAssetsValid) {
+  console.error('❌ Some assets are missing or empty!');
+  console.info('💡 Run: npm run setup-assets');
+  process.exit(1);
+}
+
+console.log('✓ All assets verified');
