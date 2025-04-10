@@ -41,7 +41,7 @@ module.exports = {
       template: 'src/index.html',
       filename: 'index.html',
       inject: 'body',
-      favicon: 'src/assets/favicon.png',
+      // Removed favicon reference - add it back if you create the file
       minify: {
         collapseWhitespace: true,
         removeComments: true,
@@ -56,7 +56,7 @@ module.exports = {
           to: 'assets',
           noErrorOnMissing: true,
           globOptions: {
-            ignore: ['**/.DS_Store', '**/Thumbs.db']
+            ignore: ['**/.DS_Store']
           }
         }
       ]
@@ -65,9 +65,7 @@ module.exports = {
   resolve: {
     extensions: ['.js'],
     alias: {
-      phaser: path.resolve(__dirname, 'node_modules/phaser/dist/phaser.js'),
-      '@entities': path.resolve(__dirname, 'src/game/entities'),
-      '@scenes': path.resolve(__dirname, 'src/game/scenes')
+      phaser: path.resolve(__dirname, 'node_modules/phaser/dist/phaser.js')
     }
   },
   optimization: {
@@ -87,20 +85,5 @@ module.exports = {
     hints: false,
     maxEntrypointSize: 512000,
     maxAssetSize: 512000
-  },
-  devServer: {
-    static: {
-      directory: path.join(__dirname, 'docs'),
-    },
-    compress: true,
-    port: 8080,
-    hot: true,
-    open: true,
-    client: {
-      overlay: {
-        warnings: true,
-        errors: true
-      }
-    }
   }
 };
