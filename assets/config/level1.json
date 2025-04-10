@@ -1,1 +1,15 @@
-{"width":800,"height":600}
+{
+  "width": 2048,
+  "height": 1536,
+  "tileSize": 64,
+  "layers": {
+    "floor": {
+      "tiles": [
+        {"x": 0, "y": 0, "tile": "floor_1"},
+        {"x": 1, "y": 0, "tile": "floor_2"}
+      ],
+      "collision": false
+    }
+  },
+  "playerStart": {"x": 300, "y": 400}
+}
