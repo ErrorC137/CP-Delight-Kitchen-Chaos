@@ -1,47 +1,15 @@
 {
-    "width": 2048,
-    "height": 1536,
-    "tileSize": 64,
-    "layers": {
-      "floor": {
-        "tiles": [
-          {"x": 0, "y": 0, "tile": "floor_1"},
-          {"x": 1, "y": 0, "tile": "floor_2"}
-
-        ],
-        "collision": false
-      },
-      "counters": {
-        "tiles": [
-          {"x": 3, "y": 4, "tile": "counter_1", "properties": {"interactable": true}},
-          {"x": 5, "y": 4, "tile": "fryer", "properties": {"type": "cooking"}}
-        ],
-        "collision": true
-      }
-    },
-    "hazards": [
-      {
-        "type": "grease_spill",
-        "startTime": 30000,
-        "duration": 15000,
-        "area": {"x": 500, "y": 300, "width": 200, "height": 200}
-      },
-      {
-        "type": "fire",
-        "startTime": 45000,
-        "duration": 10000,
-        "position": {"x": 700, "y": 400}
-      }
-    ],
-    "initialOrders": [
-      {
-        "id": "order_1",
-        "recipe": "basil_chicken",
-        "timeLimit": 120000,
-        "ingredients": ["chicken", "basil", "package"],
-        "points": 500
-      }
-    ],
-    "timeLimit": 180000,
-    "playerStart": {"x": 300, "y": 400}
-  }
+  "width": 2048,
+  "height": 1536,
+  "tileSize": 64,
+  "layers": {
+    "floor": {
+      "tiles": [
+        {"x": 0, "y": 0, "tile": "floor_1"},
+        {"x": 1, "y": 0, "tile": "floor_2"}
+      ],
+      "collision": false
+    }
+  },
+  "playerStart": {"x": 300, "y": 400}
+}
