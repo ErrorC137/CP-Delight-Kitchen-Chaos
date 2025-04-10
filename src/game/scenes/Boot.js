@@ -68,6 +68,7 @@ export default class Boot extends Phaser.Scene {
       this.load.image('fryer', 'sprites/kitchen/appliance_fryer.png');
       this.load.image('kitchen_tiles', 'sprites/kitchen/kitchen_tiles.png');
       this.load.image('ingredient_chicken', 'sprites/kitchen/ingredient_chicken.png');
+      this.load.image('fire', 'sprites/kitchen/fire.png');
 
       // UI elements
       this.load.image('timer_bg', 'sprites/ui/timer_background.png');
@@ -129,6 +130,14 @@ export default class Boot extends Phaser.Scene {
         repeat: -1,
         yoyo: true
       });
+    });
+
+    // Fire animation
+    this.anims.create({
+      key: 'fire_anim',
+      frames: this.anims.generateFrameNumbers('fire', { start: 0, end: 7 }),
+      frameRate: 10,
+      repeat: -1
     });
   }
 
