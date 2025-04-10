@@ -2,33 +2,34 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-  // Use a simple string entry to generate a main chunk called "bundle.js"
+  // Use a string entry so that the main bundle is named based on our output.filename.
   entry: './src/game/main.js',
 
   output: {
     // Output directory for GitHub Pages
     path: path.resolve(__dirname, 'docs'),
-    // Main bundle will be named "bundle.js"
+    // Force the main bundle to be "bundle.js"
     filename: 'bundle.js',
-    // Vendor or other chunks will use their chunk names so that they do not conflict
-    chunkFilename: '[name].bundle.js',
-    // Use a relative path so that GitHub Pages can correctly load assets
+    // Any additional chunks will be emitted into the "chunks" folder with unique names
+    chunkFilename: 'chunks/[name].bundle.js',
+    // Use a relative public path so assets load correctly on GitHub Pages
     publicPath: './'
   },
 
   module: {
     rules: [
+      // Transpile JavaScript using Babel
       {
-        // Transpile JavaScript using Babel
         test: /\.js$/,
         exclude: /node_modules/,
         use: 'babel-loader'
       },
+      // Process images, JSON, and other assets
       {
-        // Process images, JSON, and other assets. They will be output to "docs/assets/"
         test: /\.(png|jpe?g|gif|svg|json)$/,
         type: 'asset/resource',
         generator: {
+          // Place assets in the "docs/assets" folder
           filename: 'assets/[name][ext]'
         }
       }
@@ -38,22 +39,22 @@ module.exports = {
   resolve: {
     extensions: ['.js'],
     alias: {
-      // Ensure Phaser resolves correctly.
+      // Ensure Phaser resolves correctly (using Phaser's built file)
       phaser: path.resolve(__dirname, 'node_modules/phaser/dist/phaser.js')
     }
   },
 
   plugins: [
-    // Generate index.html with automatically injected bundle <script> tags
+    // Automatically generate an index.html file with injected script tags
     new HtmlWebpackPlugin({
-      template: 'src/index.html', // Source template
-      filename: 'index.html',       // Output file in "docs" directory
-      inject: 'body'                // Inject scripts at the end of the body
+      template: 'src/index.html', // Our HTML template file
+      filename: 'index.html',       // Will be placed in the "docs" folder
+      inject: 'body'                // Scripts will be injected at the end of the <body>
     })
   ],
 
   devServer: {
-    // Development server settings for local testing.
+    // Local development server configuration
     static: path.join(__dirname, 'docs'),
     open: true,
     compress: true,
@@ -63,22 +64,25 @@ module.exports = {
   },
 
   optimization: {
-    minimize: true,
+    // Extract Webpack runtime into its own file (e.g., runtime.bundle.js)
+    runtimeChunk: 'single',
+    // Configure code splitting for vendor libraries such as Phaser
     splitChunks: {
       cacheGroups: {
-        // If Phaser gets split into a separate chunk, name it "phaser.bundle.js"
         phaser: {
           test: /[\\/]node_modules[\\/]phaser[\\/]/,
           name: 'phaser',
           chunks: 'all',
+          enforce: true,
           priority: 10
         }
       }
-    }
+    },
+    minimize: true
   },
 
   performance: {
-    // Prevent large asset warnings.
+    // Set performance limits to avoid warnings
     maxEntrypointSize: 512000,
     maxAssetSize: 512000
   }
