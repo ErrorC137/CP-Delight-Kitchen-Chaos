@@ -1,4 +1,6 @@
-import { game } from './main.js';
+// Previously: import { game } from './main.js';
+import { game } from '../main.js';
+
 export default class Boot extends Phaser.Scene {
   constructor() {
     super({ key: 'Boot' });
@@ -26,7 +28,7 @@ export default class Boot extends Phaser.Scene {
     const { width, height } = this.sys.game.config;
     
     // Loading text
-    this.add.text(width/2, height/2 - 40, 'Loading Kitchen...', { 
+    this.add.text(width / 2, height / 2 - 40, 'Loading Kitchen...', { 
       font: '24px Arial', 
       fill: '#ffffff' 
     }).setOrigin(0.5);
@@ -34,14 +36,14 @@ export default class Boot extends Phaser.Scene {
     // Progress bar background
     this.add.graphics()
       .fillStyle(0x222222, 0.8)
-      .fillRect(width/2 - 160, height/2, 320, 50);
+      .fillRect(width / 2 - 160, height / 2, 320, 50);
 
     // Progress bar
     const progressBar = this.add.graphics();
     this.load.on('progress', (value) => {
       progressBar.clear()
         .fillStyle(0xffffff, 1)
-        .fillRect(width/2 - 150, height/2 + 10, 300 * value, 30);
+        .fillRect(width / 2 - 150, height / 2 + 10, 300 * value, 30);
     });
   }
 
@@ -90,24 +92,24 @@ export default class Boot extends Phaser.Scene {
     // Create animations with validation
     this.createAnimations();
 
-      const unlockAudio = () => {
-    if (this.sound.context.state === 'suspended') {
-      this.sound.context.resume();
-    }
-    document.removeEventListener('click', unlockAudio);
-    document.removeEventListener('touchend', unlockAudio);
-  };
+    const unlockAudio = () => {
+      if (this.sound.context.state === 'suspended') {
+        this.sound.context.resume();
+      }
+      document.removeEventListener('click', unlockAudio);
+      document.removeEventListener('touchend', unlockAudio);
+    };
 
-  // Initial unlock attempt
-  unlockAudio();
-  
-  // User gesture fallback
-  document.addEventListener('click', unlockAudio);
-  document.addEventListener('touchend', unlockAudio);
+    // Initial unlock attempt
+    unlockAudio();
+    
+    // User gesture fallback
+    document.addEventListener('click', unlockAudio);
+    document.addEventListener('touchend', unlockAudio);
 
-  // Start game scenes
-  this.scene.start('Kitchen');
-  this.scene.launch('HUD');
+    // Start game scenes
+    this.scene.start('Kitchen');
+    this.scene.launch('HUD');
   }
 
   createAnimations() {
@@ -138,20 +140,15 @@ export default class Boot extends Phaser.Scene {
       document.removeEventListener('touchend', handleUserGesture);
     };
 
-    // Initial attempt to unlock
     handleUserGesture();
-
-    // Fallback user gesture handlers
     document.addEventListener('click', handleUserGesture);
     document.addEventListener('touchend', handleUserGesture);
 
-    // Set audio preferences
     this.sound.pauseOnBlur = false;
     this.sound.volume = 0.5;
   }
 
   handleLoadError(file) {
-    // Replace missing assets with fallback
     if (file.type === 'image') {
       this.textures.addBase64(file.key, 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=');
     }
