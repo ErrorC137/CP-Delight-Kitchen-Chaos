@@ -1,4 +1,6 @@
-import { game } from './main.js';
+
+import { game } from '../main.js';
+
 export default class HUD extends Phaser.Scene {
   constructor() {
     super('HUD');
