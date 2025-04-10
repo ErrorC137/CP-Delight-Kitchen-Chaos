@@ -1,15 +1,86 @@
 {
-  "width": 2048,
-  "height": 1536,
-  "tileSize": 64,
-  "layers": {
-    "floor": {
-      "tiles": [
-        {"x": 0, "y": 0, "tile": "floor_1"},
-        {"x": 1, "y": 0, "tile": "floor_2"}
-      ],
-      "collision": false
+  "height": 10,
+  "width": 16,
+  "tilewidth": 64,
+  "tileheight": 64,
+  "orientation": "orthogonal",
+  "renderorder": "right-down",
+  "version": 1.6,
+  "tiledversion": "1.10.2",
+  "type": "map",
+  "infinite": false,
+
+  "tilesets": [
+    {
+      "firstgid": 1,
+      "source": "kitchen_tiles.tsx"
     }
-  },
-  "playerStart": {"x": 300, "y": 400}
+  ],
+
+  "layers": [
+    {
+      "type": "tilelayer",
+      "name": "Floor",
+      "x": 0,
+      "y": 0,
+      "width": 16,
+      "height": 10,
+      "visible": true,
+      "opacity": 1,
+      "data": [
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+      ]
+    },
+    {
+      "type": "objectgroup",
+      "name": "Objects",
+      "objects": [
+        {
+          "id": 1,
+          "name": "PlayerStart",
+          "type": "spawn",
+          "x": 150,
+          "y": 150,
+          "width": 0,
+          "height": 0
+        },
+        {
+          "id": 2,
+          "name": "Counter",
+          "type": "counter",
+          "x": 100,
+          "y": 100,
+          "width": 64,
+          "height": 64
+        },
+        {
+          "id": 3,
+          "name": "Fryer",
+          "type": "fryer",
+          "x": 200,
+          "y": 100,
+          "width": 64,
+          "height": 64
+        },
+        {
+          "id": 4,
+          "name": "Chicken",
+          "type": "ingredient",
+          "x": 300,
+          "y": 100,
+          "width": 64,
+          "height": 64
+        }
+      ]
+    }
+  ]
 }
