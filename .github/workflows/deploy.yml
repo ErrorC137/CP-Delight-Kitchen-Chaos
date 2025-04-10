@@ -21,19 +21,43 @@ jobs:
 
       - name: Install dependencies
         run: |
-          npm install
+          npm ci
           npm install copy-webpack-plugin@latest
-          npm cache verify
+
+      - name: Verify assets exist
+        run: |
+          if [ ! -d "src/assets" ]; then
+            echo "❌ src/assets directory is missing!"
+            exit 1
+          fi
+          if [ ! -f "src/assets/config/level1.json" ]; then
+            echo "❌ Missing level config: src/assets/config/level1.json"
+            exit 1
+          fi
 
       - name: Build project
         run: npm run build
 
       - name: Verify build output
         run: |
-          ls -R docs/
-          test -f docs/index.html || (echo "Missing index.html!" && exit 1)
-          test -f docs/main.bundle.js || (echo "Missing main.bundle.js!" && exit 1)
-          test -d docs/assets || (echo "Missing assets directory!" && exit 1)
+          echo "=== Build Contents ==="
+          ls -R docs
+          
+          echo "=== Required Files ==="
+          declare -a required_files=(
+            "docs/index.html"
+            "docs/main.bundle.js"
+            "docs/assets/config/level1.json"
+          )
+          
+          for file in "${required_files[@]}"; do
+            if [ ! -e "$file" ]; then
+              echo "❌ Missing required file: $file"
+              exit 1
+            else
+              echo "✓ Verified: $file"
+            fi
+          done
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
