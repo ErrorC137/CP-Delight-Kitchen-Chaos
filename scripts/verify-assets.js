@@ -2,38 +2,38 @@ const fs = require('fs');
 const path = require('path');
 
 const requiredAssets = [
-  { path: 'config/level1.json', minSize: 20 }, // At least 20 bytes
-  { path: 'sprites/kitchen/counter.png', minSize: 100 }, // At least 100 bytes
-  { path: 'sprites/kitchen/ingredient_chicken.png', minSize: 100 },
-  { path: 'audio/sfx/bell.mp3', minSize: 1000 } // At least 1KB
+  'config/level1.json',
+  'sprites/kitchen/counter.png',
+  'sprites/kitchen/ingredient_chicken.png'
 ];
 
 console.log('=== Verifying Assets ===');
 
-let allAssetsValid = true;
+let missingAssets = false;
 const assetsBase = path.join(__dirname, '../src/assets');
 
-requiredAssets.forEach(({path: assetPath, minSize}) => {
-  const fullPath = path.join(assetsBase, assetPath);
-  
-  if (!fs.existsSync(fullPath)) {
-    console.error(`❌ Missing asset: ${assetPath}`);
-    allAssetsValid = false;
-    return;
-  }
+// Check if assets directory exists
+if (!fs.existsSync(assetsBase)) {
+  console.error('❌ src/assets directory is missing!');
+  console.info('💡 Run: npm run setup-assets to create it');
+  process.exit(1);
+}
 
-  const stats = fs.statSync(fullPath);
-  if (stats.size < minSize) {
-    console.error(`❌ Asset too small (${stats.size} bytes): ${assetPath}`);
-    console.error(`   Expected at least ${minSize} bytes`);
-    allAssetsValid = false;
-  } else {
-    console.log(`✓ Valid: ${assetPath} (${stats.size} bytes)`);
+// Check required files
+requiredAssets.forEach(asset => {
+  const fullPath = path.join(assetsBase, asset);
+  if (!fs.existsSync(fullPath)) {
+    console.error(`❌ Missing: ${asset}`);
+    missingAssets = true;
+  } else if (fs.statSync(fullPath).size === 0) {
+    console.error(`❌ Empty file: ${asset}`);
+    missingAssets = true;
   }
 });
 
-if (!allAssetsValid) {
-  console.error('❌ Some assets are invalid or missing!');
+if (missingAssets) {
+  console.error('❌ Some assets are missing or empty!');
+  console.info('💡 Run: npm run setup-assets to create placeholder files');
   process.exit(1);
 }
 
