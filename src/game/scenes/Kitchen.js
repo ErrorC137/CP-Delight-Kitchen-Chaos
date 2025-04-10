@@ -1,5 +1,7 @@
 // Previously: import { game } from './main.js';
 import { game } from '../main.js';
+import CookingStation from '../entities/CookingStation.js';
+import Player from '../entities/Player.js';
 export default class Kitchen extends Phaser.Scene {
     constructor() {
         super('Kitchen');
