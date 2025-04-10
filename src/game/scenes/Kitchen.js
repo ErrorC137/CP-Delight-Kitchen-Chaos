@@ -1,4 +1,5 @@
-import { game } from './main.js';
+// Previously: import { game } from './main.js';
+import { game } from '../main.js';
 export default class Kitchen extends Phaser.Scene {
     constructor() {
         super('Kitchen');
@@ -15,7 +16,6 @@ export default class Kitchen extends Phaser.Scene {
     }
 
     create() {
-        // Setup kitchen layout
         this.createKitchenLayout();
         this.player = new Player(this, 100, 100);
         
@@ -34,10 +34,8 @@ export default class Kitchen extends Phaser.Scene {
     }
 
     createKitchenLayout() {
-        // Pokémon-style tilemap (simplified)
         this.add.tileSprite(0, 0, 2048, 1536, 'kitchen_tiles').setOrigin(0);
         
-        // Counters and appliances
         this.counters = this.physics.add.staticGroup();
         this.counters.create(300, 400, 'counter');
         this.counters.create(500, 400, 'counter');
@@ -46,7 +44,6 @@ export default class Kitchen extends Phaser.Scene {
     }
 
     setupCookingStations() {
-        // Cooking interaction logic
         this.physics.add.overlap(this.player, this.fryer, (player, station) => {
             if (player.carrying && station.canCook(player.carrying)) {
                 station.startCooking(player.carrying);
@@ -56,7 +53,6 @@ export default class Kitchen extends Phaser.Scene {
     }
 
     setupOrders() {
-        // Dynamic order system
         this.orderTimer = this.time.addEvent({
             delay: 45000,
             callback: () => {
@@ -68,7 +64,6 @@ export default class Kitchen extends Phaser.Scene {
     }
 
     setupDisasters() {
-        // Chaotic events system
         this.disasterTimer = this.time.addEvent({
             delay: 60000,
             callback: this.triggerDisaster,
@@ -85,7 +80,7 @@ export default class Kitchen extends Phaser.Scene {
         };
         
         const recipeKeys = Object.keys(recipes);
-        const randomRecipe = recipeKeys[Phaser.Math.Between(0, recipeKeys.length-1)];
+        const randomRecipe = recipeKeys[Phaser.Math.Between(0, recipeKeys.length - 1)];
         
         this.orders.push({
             recipe: randomRecipe,
@@ -97,7 +92,7 @@ export default class Kitchen extends Phaser.Scene {
     triggerDisaster() {
         const disaster = Phaser.Math.RND.pick(this.disasters);
         
-        switch(disaster) {
+        switch (disaster) {
             case 'earthquake':
                 this.cameras.main.shake(3000, 0.02);
                 this.time.addEvent({
@@ -110,7 +105,6 @@ export default class Kitchen extends Phaser.Scene {
                     repeat: 30
                 });
                 break;
-                
             case 'fire':
                 const fire = this.add.sprite(
                     Phaser.Math.Between(100, 700),
