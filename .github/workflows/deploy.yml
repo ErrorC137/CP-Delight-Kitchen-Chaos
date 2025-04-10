@@ -17,13 +17,13 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      # 1. Checkout the repository with full history
+      # 1. Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Needed for proper version info
+          fetch-depth: 0
 
-      # 2. Setup Node.js environment with caching
+      # 2. Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -31,21 +31,17 @@ jobs:
           cache: 'npm'
           cache-dependency-path: 'package-lock.json'
 
-      # 3. Install dependencies with clean install
+      # 3. Install dependencies
       - name: Install dependencies
         run: |
           npm ci
           npm cache verify
 
-      # 4. Build the project with production mode
-      - name: Build the project
-        run: |
-          npm run build
-          # Verify critical assets
-          test -d docs/assets || (echo "Missing assets directory!" && exit 1)
-          test -f docs/assets/config/level1.json || (echo "Missing level config!" && exit 1)
+      # 4. Build project
+      - name: Build project
+        run: npm run build
 
-      # 5. Comprehensive output validation
+      # 5. Verify build output (cross-platform compatible)
       - name: Verify build output
         run: |
           echo "=== Build Artifacts ==="
@@ -60,7 +56,7 @@ jobs:
           )
           
           for file in "${REQUIRED_FILES[@]}"; do
-            if [ ! -f "$file" ] && [ ! -d "$file" ]; then
+            if [ ! -e "$file" ]; then
               echo "❌ Missing required file/directory: $file"
               exit 1
             else
@@ -70,20 +66,20 @@ jobs:
           
           echo "=== Bundle Size Check ==="
           MAX_BUNDLE_SIZE=512000  # 500KB
-          BUNDLE_SIZE=$(stat -f%z docs/main.bundle.js)
+          BUNDLE_SIZE=$(wc -c < docs/main.bundle.js | awk '{print $1}')
           if [ "$BUNDLE_SIZE" -gt "$MAX_BUNDLE_SIZE" ]; then
-            echo "❌ Bundle size exceeds limit: $BUNDLE_SIZE > $MAX_BUNDLE_SIZE"
+            echo "❌ Bundle size exceeds limit: $BUNDLE_SIZE > $MAX_BUNDLE_SIZE bytes"
             exit 1
           else
             echo "✓ Bundle size OK: $BUNDLE_SIZE bytes"
           fi
 
-      # 6. Deploy to GitHub Pages with cleanup
+      # 6. Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs
           keep_files: false
-          force_orphan: true  # Ensures clean history
-          enable_jekyll: false # Important for SPA
+          force_orphan: true
+          enable_jekyll: false
