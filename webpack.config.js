@@ -1,6 +1,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   entry: {
@@ -40,12 +41,25 @@ module.exports = {
       template: 'src/index.html',
       filename: 'index.html',
       inject: 'body',
+      favicon: 'src/assets/favicon.png',
       minify: {
         collapseWhitespace: true,
         removeComments: true,
         removeRedundantAttributes: true,
         useShortDoctype: true
       }
+    }),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: 'src/assets',
+          to: 'assets',
+          noErrorOnMissing: true,
+          globOptions: {
+            ignore: ['**/.DS_Store', '**/Thumbs.db']
+          }
+        }
+      ]
     })
   ],
   resolve: {
