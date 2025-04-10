@@ -25,17 +25,10 @@ jobs:
           npm cache verify
 
       - name: Setup assets
-  run: |
-    if [ ! -d "src/assets" ]; then
-      echo "Creating asset structure..."
-      npm run setup-assets
-    fi
-    
-    # Verify at least one file was created
-    if [ ! -f "src/assets/config/level1.json" ]; then
-      echo "::error::Asset setup failed!"
-      exit 1
-    fi
+        run: |
+          if [ ! -d "src/assets" ]; then
+            npm run setup-assets
+          fi
 
       - name: Verify assets
         run: npm run prebuild
